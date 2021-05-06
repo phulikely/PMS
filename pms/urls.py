@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+admin.site.index_title = "Welcome to VMO"
+admin.site.site_header = "VMO Administrator"
+admin.site.site_title = "VMO"
 
 urlpatterns = [
     path('admin/', admin.site.urls),

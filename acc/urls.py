@@ -4,6 +4,6 @@ from acc import views
 
 urlpatterns = [
     path('', views.home),
-    path('projects/', views.projects),
+    path('members/', views.members),
     path('customer/', views.customer),
 ]
