@@ -1,0 +1,12 @@
+body{
+    background-color: #ebeff5;
+}
+#total-projects{
+    background-color: #4cb4c7;
+}
+#projects-completed{
+    background-color: #7abecc;
+}
+#projects-incompleted{
+    background-color: #7CD1C0;
+}
