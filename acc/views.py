@@ -43,3 +43,8 @@ def customer(request, pk):
                 'project_count':project_count1
     }
     return render(request, 'accounts/customer.html', context)
+
+def create_project(request):
+
+    context = {}
+    return render(request, 'accounts/project_form.html', context)
