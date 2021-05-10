@@ -52,6 +52,8 @@ def register_page(request):
             group = Group.objects.get(name='client')
             user.groups.add(group)
 
+            Customer.objects.create(user=user)
+
             messages.success(request, 'Account created for ' + username + ' successfully')
             return redirect('login')
         else:
@@ -87,8 +89,16 @@ def home(request):
 @allowed_users(allowed_roles=['client'])
 def user_page(request):
     projects = request.user.customer.project_set.all()
-    print('projects :', projects)
-    context = {'projects':projects}
+
+    total_projects = projects.values("name").annotate(Count("name")).count()
+    completed = projects.filter(status='Completed').count()
+    incompleted = total_projects - completed
+
+    context = {'projects':projects,
+                'total_projects':total_projects,
+                'completed':completed,
+                'incompleted':incompleted,
+                }
     return render(request, 'accounts/user.html', context)
 
 
