@@ -103,6 +103,21 @@ def user_page(request):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['client'])
+def acc_settings(request):
+    customer = request.user.customer
+    form = CustomerForm(instance=customer)
+
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, request.FILES, instance=customer)
+        if form.is_valid():
+            form.save()
+
+    context = {'form':form}
+    return render(request, 'accounts/acc_settings.html', context)
+
+
+@login_required(login_url='login')
 @allowed_users(allowed_roles=['admin'])
 def members(request):
     members = Member.objects.all()

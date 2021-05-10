@@ -8,8 +8,11 @@ urlpatterns = [
     path('register/', views.register_page, name='register'),
     path('page_not_found/', views.page_not_found, name='page_not_found'),
 
+    path('account/', views.acc_settings, name='account'),
+
     path('', views.home, name='home'),
     path('user/', views.user_page, name='user_page'),
+
     path('members/', views.members, name='members'),
     path('customer/<str:pk>/', views.customer, name='customer'),
     path('create_customer/', views.create_customer, name='create_customer'),
