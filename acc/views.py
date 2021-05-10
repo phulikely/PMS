@@ -83,8 +83,12 @@ def home(request):
     return render(request, 'accounts/dashboard.html', context)
 
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['client'])
 def user_page(request):
-    context = {}
+    projects = request.user.customer.project_set.all()
+    print('projects :', projects)
+    context = {'projects':projects}
     return render(request, 'accounts/user.html', context)
 
 
@@ -174,4 +178,8 @@ def delete_project(request, pk):
         return redirect('/')
 
     context = {'item':project}
-    return render(request, 'accounts/delete.html', context)   
+    return render(request, 'accounts/delete.html', context)
+
+
+def page_not_found(request):
+    return render(request, 'accounts/page_not_found.html')
