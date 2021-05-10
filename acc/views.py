@@ -6,29 +6,30 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 
 from .models import *
 from .forms import ProjectForm, CustomerForm, CreateUserForm
 from .filters import *
+from .decorators import unauthenticated_user, allowed_users, admin_only
 
 
+@unauthenticated_user
 def login_page(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        if request.method == 'POST':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-
-            user = authenticate(request, username=username, password=password)
-            
-            if user is not None:
-                login(request, user)
-                return redirect('home')
-            else:
-                messages.info(request, 'Username or Password is incorrect')
-        context = {}
-        return render(request, 'accounts/login.html', context)
+    # if request.user.is_authenticated:
+    #     return redirect('home')
+    # else:
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.info(request, 'Username or Password is incorrect')
+    context = {}
+    return render(request, 'accounts/login.html', context)
 
 
 def logout_page(request):
@@ -36,25 +37,33 @@ def logout_page(request):
     return redirect('login')
 
 
+@unauthenticated_user
 def register_page(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        form = CreateUserForm()
-        if request.method == 'POST':
-            form = CreateUserForm(request.POST)
-            if form.is_valid():
-                form.save()
-                user = form.cleaned_data.get('username')
-                messages.success(request, 'Account created for ' + user + ' successfully')
-                return redirect('login')
-            else:
-                messages.error(request, 'Account created unsuccessfully')
-        context = {'form':form}
-        return render(request, 'accounts/register.html', context)
+    # if request.user.is_authenticated:
+    #     return redirect('home')
+    # else:
+    form = CreateUserForm()
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+
+            group = Group.objects.get(name='client')
+            user.groups.add(group)
+
+            messages.success(request, 'Account created for ' + username + ' successfully')
+            return redirect('login')
+        else:
+            messages.error(request, 'Account created unsuccessfully')
+
+    context = {'form':form}
+    return render(request, 'accounts/register.html', context)
 
 
 @login_required(login_url='login')
+#@allowed_users(allowed_roles=['admin'])
+@admin_only
 def home(request):
     projects = Project.objects.all()
     customers = Customer.objects.all()
@@ -74,7 +83,13 @@ def home(request):
     return render(request, 'accounts/dashboard.html', context)
 
 
+def user_page(request):
+    context = {}
+    return render(request, 'accounts/user.html', context)
+
+
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def members(request):
     members = Member.objects.all()
 
@@ -82,6 +97,7 @@ def members(request):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def customer(request, pk):
     customer = Customer.objects.get(id=pk)
     projects = customer.project_set.all()
@@ -100,6 +116,7 @@ def customer(request, pk):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def create_customer(request):
     form = CustomerForm()
     if request.method == "POST":
@@ -114,6 +131,7 @@ def create_customer(request):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def create_project(request, pk):
     ProjectFormSet = inlineformset_factory(Customer, Project, fields=('member', 'name', 'status'), extra=3)
     customer = Customer.objects.get(id=pk)
@@ -132,6 +150,7 @@ def create_project(request, pk):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def update_project(request, pk):
     project = Project.objects.get(id=pk)
     form = ProjectForm(instance=project)
@@ -147,6 +166,7 @@ def update_project(request, pk):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def delete_project(request, pk):
     project = Project.objects.get(id=pk)
     if request.method == "POST":

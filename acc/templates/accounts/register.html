@@ -134,7 +134,11 @@
 				</div>
 
                 {% for message in messages %}
-                    <p id="messages" style="color: whitesmoke;">{{message}}</p>
+					{% if form.errors %}
+                    	<p id="messages" style="color: red;">{{message}}</p>
+					{% else %}
+						<p id="messages" style="color: whitesmoke;">{{message}}</p>
+					{% endif %}
                 {% endfor %}
 
 				<div class="mt-4">
