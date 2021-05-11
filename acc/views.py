@@ -49,10 +49,10 @@ def register_page(request):
             user = form.save()
             username = form.cleaned_data.get('username')
 
-            group = Group.objects.get(name='client')
-            user.groups.add(group)
+            # group = Group.objects.get(name='client')
+            # user.groups.add(group)
 
-            Customer.objects.create(user=user)
+            # Customer.objects.create(user=user)
 
             messages.success(request, 'Account created for ' + username + ' successfully')
             return redirect('login')
