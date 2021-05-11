@@ -48,17 +48,13 @@ def register_page(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
-
             # group = Group.objects.get(name='client')
             # user.groups.add(group)
-
             # Customer.objects.create(user=user)
-
             messages.success(request, 'Account created for ' + username + ' successfully')
             return redirect('login')
         else:
             messages.error(request, 'Account created unsuccessfully')
-
     context = {'form':form}
     return render(request, 'accounts/register.html', context)
 
@@ -68,14 +64,15 @@ def register_page(request):
 @admin_only
 def home(request):
     projects = Project.objects.all()
+    projects_5 = projects.order_by('-id')[:5]
+    #print(projects_5)
     customers = Customer.objects.all()
     total_customers = customers.count()
     # total_projects = projects.count()
     total_projects = Project.objects.values("name").annotate(Count("name")).count()
     completed = projects.filter(status='Completed').count()
     incompleted = total_projects - completed
-
-    context = {'projects':projects, 
+    context = {'projects':projects_5, 
                 'customers':customers,
                 'total_customers':total_customers,
                 'total_projects':total_projects,
@@ -89,11 +86,9 @@ def home(request):
 @allowed_users(allowed_roles=['client'])
 def user_page(request):
     projects = request.user.customer.project_set.all()
-
     total_projects = projects.values("name").annotate(Count("name")).count()
     completed = projects.filter(status='Completed').count()
     incompleted = total_projects - completed
-
     context = {'projects':projects,
                 'total_projects':total_projects,
                 'completed':completed,
@@ -107,12 +102,10 @@ def user_page(request):
 def acc_settings(request):
     customer = request.user.customer
     form = CustomerForm(instance=customer)
-
     if request.method == 'POST':
         form = CustomerForm(request.POST, request.FILES, instance=customer)
         if form.is_valid():
             form.save()
-
     context = {'form':form}
     return render(request, 'accounts/acc_settings.html', context)
 
@@ -121,7 +114,6 @@ def acc_settings(request):
 @allowed_users(allowed_roles=['admin'])
 def members(request):
     members = Member.objects.all()
-
     return render(request, 'accounts/member.html', {'members':members})
 
 
@@ -132,10 +124,8 @@ def customer(request, pk):
     projects = customer.project_set.all()
     # project_count = projects.count()
     project_count = projects.values("name").annotate(Count("name")).count()
-
     my_filter = ProjectFilter(request.GET, queryset=projects)
     projects = my_filter.qs
-
     context = {'customer':customer,
                 'projects':projects,
                 'project_count':project_count,
@@ -154,7 +144,6 @@ def create_customer(request):
         if form.is_valid():
             form.save()
             return redirect('/')
-
     context = {'form':form}
     return render(request, 'accounts/customer_form.html', context)
 
@@ -173,7 +162,6 @@ def create_project(request, pk):
         if form_set.is_valid():
             form_set.save()
             return redirect('/')
-
     context = {'form_set':form_set}
     return render(request, 'accounts/project_form.html', context)
 
@@ -189,7 +177,6 @@ def update_project(request, pk):
         if form.is_valid():
             form.save()
             return redirect('/')    
-    
     context = {'form':form}
     return render(request, 'accounts/project_form.html', context)
 
@@ -201,7 +188,6 @@ def delete_project(request, pk):
     if request.method == "POST":
         project.delete()
         return redirect('/')
-
     context = {'item':project}
     return render(request, 'accounts/delete.html', context)
 
