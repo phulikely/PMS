@@ -64,7 +64,7 @@ def register_page(request):
 @admin_only
 def home(request):
     projects = Project.objects.all()
-    projects_5 = projects.order_by('-id')[:5]
+    projects_10 = projects.order_by('-id')[:10]
     #print(projects_5)
     customers = Customer.objects.all()
     total_customers = customers.count()
@@ -72,7 +72,7 @@ def home(request):
     total_projects = Project.objects.values("name").annotate(Count("name")).count()
     completed = projects.filter(status='Completed').count()
     incompleted = total_projects - completed
-    context = {'projects':projects_5, 
+    context = {'projects':projects_10, 
                 'customers':customers,
                 'total_customers':total_customers,
                 'total_projects':total_projects,
